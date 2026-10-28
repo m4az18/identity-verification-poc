@@ -12,14 +12,14 @@ dependencies = [
 [project.scripts]
 identity-verification = "identity_verification.api.main:run"
 [project.optional-dependencies]
-ocr-easy = ["easyocr>=1.7,<2", "opencv-python>=4.12,<5"]
+ocr-easy = ["easyocr>=1.7,<2", "opencv-python>=4.12,<6"]
 ocr-tesseract = ["pytesseract>=0.3.13,<1"]
-ocr-paddle = ["paddleocr>=3.7,<4", "paddlepaddle>=3.2,<4", "opencv-python>=4.12,<5"]
+ocr-paddle = ["paddleocr>=3.7,<4", "paddlepaddle>=3.2,<4", "opencv-python>=4.12,<6"]
 ocr-nanonets = ["accelerate>=1.10,<2", "torch>=2.6,<3", "transformers>=4.57,<6"]
 face = ["ultralytics>=8.4,<9", "huggingface-hub>=1.0,<2", "insightface>=0.7",
-        "onnxruntime>=1.23,<2", "opencv-python>=4.12,<5", "torch>=2.6,<3", "torchvision>=0.21,<1"]
+        "onnxruntime>=1.23,<2", "opencv-python>=4.12,<6", "torch>=2.6,<3", "torchvision>=0.21,<1"]
 face-demo = ["gradio>=6,<7", "scikit-learn>=1.7,<2", "matplotlib>=3.10,<4"]
-dev = ["httpx>=0.28,<1", "pytest>=9,<10", "ruff>=0.17,<0.18", "opencv-python>=4.12,<5"]
+dev = ["httpx>=0.28,<1", "pytest>=9,<10", "ruff>=0.17,<0.18", "opencv-python>=4.12,<6"]
 [build-system]
 requires = ["setuptools>=80"]
 build-backend = "setuptools.build_meta"
