@@ -1,0 +1,8 @@
+services:
+  identity-verification:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      WARM_UP_OCR_ON_STARTUP: "false"
+      WARM_UP_FACE_ON_STARTUP: "false"

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <title>Face Verification — Identity Verification Lab</title>
+  <link rel="stylesheet" href="/face/static/styles.css?build=face-v7" />
+</head>
+<body>
+  <header class="topbar">
+    <a href="/" class="brand">sa<span>al</span><b>.</b></a>
+    <div class="title"><strong>Face Verification</strong><small>ID portrait ↔ current photo</small></div>
+    <nav aria-label="Primary navigation">
+      <a href="/">Unified verification</a>
+      <a href="/text">Document check</a>
+      <a class="active" aria-current="page" href="/face">Face check</a>
+    </nav>
+  </header>
+  <main>
+    <section class="intro">
+      <p class="eyebrow">FACE CHECK</p>
+      <h1>Compare the ID portrait with a current face.</h1>
+      <p>Upload a clear Emirates ID image and one current photo. You will see whether the faces match, whether the images were usable, and how long the check took.</p>
+    </section>
+
+    <form id="face-form" class="card">
+      <label class="upload-box" for="id-photo"><span class="number">01</span><strong>Emirates ID image</strong><small>Use a clear image containing the ID portrait.</small><span class="choose">Choose ID image</span><input id="id-photo" name="id_photo" type="file" accept="image/png,image/jpeg" required /><span id="id-selection" class="file-name">No file selected</span></label>
+      <label class="upload-box" for="live-photo"><span class="number">02</span><strong>Current photo</strong><small>Use one clear, well-lit face.</small><span class="choose">Choose current photo</span><input id="live-photo" name="live_photo" type="file" accept="image/png,image/jpeg" capture="user" required /><span id="live-selection" class="file-name">No file selected</span></label>
+      <button id="compare-button" type="submit">Compare faces →</button>
+    </form>
+
+    <div id="status" class="status hidden"></div>
+    <section id="result" class="results hidden">
+      <article id="result-banner" class="result-banner"><p class="eyebrow">FACE RESULT</p><h2 id="outcome"></h2><p id="detail"></p></article>
+      <div class="summary-grid">
+        <article class="summary-card"><h3>Comparison</h3><div class="metric"><span>Similarity</span><b id="similarity">—</b></div><div class="metric"><span>POC threshold</span><b id="threshold">—</b></div><p class="micro">Similarity is a cosine-similarity measure, not a percentage confidence.</p></article>
+        <article class="summary-card"><h3>Input quality</h3><div class="metric"><span>Image quality</span><b id="quality">—</b></div><div class="metric"><span>ID portrait</span><b id="portrait-status">—</b></div></article>
+        <article class="summary-card"><h3>Processing</h3><div class="metric"><span>Face pipeline</span><b id="latency">—</b></div><div class="metric"><span>ID portrait analysis</span><b id="id-latency">—</b></div><div class="metric"><span>Current photo analysis</span><b id="live-latency">—</b></div></article>
+      </div>
+
+      <details class="card details">
+        <summary>Developer / manager details</summary>
+        <div class="details-body">
+          <div class="metric"><span>Detector</span><b id="detector">—</b></div><div class="metric"><span>Recognizer</span><b id="recognizer">—</b></div><div class="metric"><span>Threshold profile</span><b id="threshold-profile">—</b></div><div class="metric"><span>ID input strategy</span><b id="strategy">—</b></div>
+          <p class="boundary">The configured threshold is an uncalibrated POC operating point. The teammate's experimental webcam motion challenge remains preserved in the source but is not used as validated liveness/PAD or in the identity decision.</p>
+          <details class="nested"><summary>Raw API response</summary><pre id="result-json"></pre></details>
+        </div>
+      </details>
+    </section>
+  </main>
+  <script src="/face/static/app.js?build=face-v7"></script>
+</body>
+</html>

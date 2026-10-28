@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <title>Emirates ID identity consistency — Identity Verification Lab</title>
+  <!-- Cache-busting avoids mixing this HTML with older JS/CSS during POC iteration. -->
+  <link rel="stylesheet" href="/text/diagnostics/static/styles.css?build=diagnostics-v4" />
+</head>
+<body>
+  <header class="topbar product-topbar">
+    <a href="/" class="product-brand">sa<span>al</span><b>.</b></a>
+    <div class="product-title"><strong>Document Diagnostics</strong><small>Engineering evidence view</small></div>
+    <nav class="product-nav"><a href="/">Unified verification</a><a href="/text">← Simple document check</a><a href="/face">Face check</a></nav>
+  </header>
+
+  <main class="shell">
+    <form id="verify-form" novalidate>
+      <section class="intake">
+        <div class="intake-copy">
+          <h2>Compare an older Emirates ID with a current Emirates ID</h2>
+          <p>
+            Upload one two-page PDF per document, or select the front and back images together.
+            The POC extracts printed identity data, validates the machine-readable zone (MRZ),
+            cross-checks both sources within each document, and then compares the older and
+            current identity records.
+          </p>
+        </div>
+
+        <div class="drops">
+          <label class="drop" for="historical-document">
+            <span class="drop-role">Older document</span>
+            <span class="drop-hint">Historical identity reference</span>
+            <input id="historical-document" required multiple type="file" name="historical_document"
+              accept="image/png,image/jpeg,application/pdf,.png,.jpg,.jpeg,.pdf" />
+            <span id="historical-selection" class="drop-file">Nothing selected</span>
+          </label>
+
+          <label class="drop" for="current-document">
+            <span class="drop-role">Current document</span>
+            <span class="drop-hint">Document currently being verified</span>
+            <input id="current-document" required multiple type="file" name="current_document"
+              accept="image/png,image/jpeg,application/pdf,.png,.jpg,.jpeg,.pdf" />
+            <span id="current-selection" class="drop-file">Nothing selected</span>
+          </label>
+        </div>
+
+        <div class="intake-foot">
+          <p class="note">
+            Uploaded documents are processed in memory by this POC and are not written to the
+            project data directory. Keep real identity documents and extracted JSON out of Git.
+          </p>
+          <button id="verify-button" type="submit">Compare documents</button>
+        </div>
+      </section>
+    </form>
+
+    <div id="status-panel" class="status hidden" role="status" aria-live="polite"></div>
+
+    <section id="result-panel" class="result hidden">
+      <section class="verdict" id="verdict">
+        <div>
+          <p class="eyebrow">Final text-verification outcome</p>
+          <p class="verdict-word" id="verdict-word"></p>
+          <p class="verdict-why" id="verdict-why"></p>
+        </div>
+        <div class="decision-note">
+          <strong>What this result does — and does not — mean</strong>
+          <p>
+            The result describes consistency of identity text and MRZ evidence. It is not a claim
+            that the physical card is authentic. Chip/NFC validation, tamper detection and face
+            verification are outside this text POC.
+          </p>
+        </div>
+      </section>
+
+      <section class="block">
+        <h3>Exact verification workflow used by this POC</h3>
+        <p class="block-lede">
+          There are three distinct checks. They are deliberately kept separate so an OCR error is
+          not confused with a true historical/current identity mismatch.
+        </p>
+        <div class="workflow-grid">
+          <article class="workflow-step">
+            <span class="step-number">1</span>
+            <h4>Extract printed fields</h4>
+            <p>
+              The configured lightweight OCR engine reads the visible Emirates ID number, date of
+              birth, English/Arabic names, nationality, sex and expiry date. The engine's own
+              field-level confidence is retained as extraction evidence.
+            </p>
+          </article>
+          <article class="workflow-step">
+            <span class="step-number">2</span>
+            <h4>Validate each document's MRZ</h4>
+            <p>
+              The system reconstructs the TD1 MRZ and recomputes the document-number, date-of-birth,
+              expiry-date and composite check digits. If the first read does not fully validate,
+              only the MRZ crop is re-read using the fallback path.
+            </p>
+          </article>
+          <article class="workflow-step">
+            <span class="step-number">3</span>
+            <h4>Cross-check, then compare old vs current</h4>
+            <p>
+              Checksum-protected MRZ values are cross-checked against the printed fields on the
+              same card. After that same-document validation, the canonical older and current
+              records are compared field by field.
+            </p>
+          </article>
+        </div>
+        <div class="important-note">
+          <strong>MRZ rule:</strong>
+          a checksum passing does not by itself mean the front matches the MRZ. First the checksum
+          tells us whether the MRZ read is internally consistent; then the validated MRZ value is
+          compared with the printed value from the same document. Only after that do we compare the
+          older record with the current record.
+        </div>
+      </section>
+
+      <section class="block">
+        <h3>Older record versus current record</h3>
+        <p class="block-lede">
+          Emirates ID number and date of birth are critical and are compared exactly after
+          normalization. Expiry date is document-specific and is not required to match across a
+          renewal. OCR confidence is shown for transparency; it is not currently an automatic
+          acceptance threshold.
+        </p>
+        <div class="table-wrap">
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Older value</th>
+                <th>Older OCR confidence</th>
+                <th>Current value</th>
+                <th>Current OCR confidence</th>
+                <th>Comparison result</th>
+              </tr>
+            </thead>
+            <tbody id="comparison-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="block">
+        <h3>Same-document MRZ validation</h3>
+        <p class="block-lede">
+          Each card is checked independently before old-versus-current comparison. The four MRZ
+          checks below validate defined character ranges; there is not a separate checksum for every
+          individual character. A failed check triggers another MRZ read or manual review — it is
+          not proof of forgery.
+        </p>
+        <div class="docs">
+          <article class="doc" id="historical-evidence"></article>
+          <article class="doc" id="current-evidence"></article>
+        </div>
+      </section>
+
+      <section class="block">
+        <h3>Decision rules currently used</h3>
+        <div class="rules-grid">
+          <div>
+            <strong>Critical historical/current fields</strong>
+            <p>Emirates ID number and date of birth must match exactly after normalization.</p>
+          </div>
+          <div>
+            <strong>Name evidence</strong>
+            <p>At least one English or Arabic name must be comparable. Uncalibrated fuzzy name variation is routed to review.</p>
+          </div>
+          <div>
+            <strong>MRZ validation</strong>
+            <p>An unresolved MRZ checksum failure after the local fallback path routes the document to review.</p>
+          </div>
+          <div>
+            <strong>Printed ↔ MRZ contradiction</strong>
+            <p>A hard contradiction is raised only when the relevant MRZ value is protected by a passing checksum.</p>
+          </div>
+          <div>
+            <strong>Supporting fields</strong>
+            <p>Nationality and sex are still extracted from the printed card by OCR and compared old-versus-current. The MRZ also exposes nationality and sex, but those same-document MRZ comparisons are supporting evidence because the fields do not have dedicated TD1 check digits.</p>
+          </div>
+          <div>
+            <strong>Current expiry</strong>
+            <p>The current document must contain a valid, non-expired expiry date.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="block">
+        <h3>Processing path and latency</h3>
+        <p class="block-lede">
+          The expensive step is OCR inference. Normalization, checksum arithmetic and string/date
+          comparison are negligible by comparison. The MRZ fallback is conditional so clean cards
+          do not pay a second-reader cost.
+        </p>
+        <div id="runtime-details" class="runtime-details"></div>
+        <p class="runtime" id="runtime-summary"></p>
+      </section>
+
+      <section class="block developer-block">
+        <details>
+          <summary>Developer evidence JSON</summary>
+          <p class="block-lede json-warning">
+            This is the complete structured API response for the current request, including identity
+            fields, confidence values, selected MRZ result, MRZ attempt history, checks, comparisons
+            and timings. It is displayed in-browser and is not automatically written to the project
+            data directory. Treat it as sensitive PII.
+          </p>
+          <pre id="result-json" class="json-view"></pre>
+        </details>
+      </section>
+    </section>
+  </main>
+
+  <script src="/text/diagnostics/static/app.js?build=diagnostics-v4"></script>
+</body>
+</html>

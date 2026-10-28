@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <title>Identity verification</title>
+  <link rel="stylesheet" href="/static/styles.css?build=identity-ocr-v1" />
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <h1>Verify your identity</h1>
+      <p>Check your Emirates ID information and compare your current photo.</p>
+      <nav aria-label="Verification options"><a href="/text">Document check only</a></nav>
+    </header>
+
+    <form id="face-form" class="card" novalidate>
+      <div class="verification-mode">
+        <label for="verification-mode">Verification</label>
+        <select id="verification-mode"><option value="identity">Documents + face</option><option value="face">Face only</option></select>
+      </div>
+      <label id="historical-upload" class="upload" for="historical-document">
+        <span class="step">1</span>
+        <span><strong>Previous Emirates ID</strong><small>One PDF or front and back images</small></span>
+        <b id="historical-file-name" class="file-name">Choose</b>
+        <input id="historical-document" name="historical_document" type="file" accept="application/pdf,image/png,image/jpeg,.pdf,.png,.jpg,.jpeg" multiple required />
+      </label>
+      <label class="upload" for="id-photo">
+        <span id="current-step" class="step">2</span>
+        <span><strong>Current Emirates ID</strong><small id="current-hint">One PDF or front and back images, including the portrait</small></span>
+        <b id="id-file-name" class="file-name">Choose</b>
+        <input id="id-photo" name="current_document" type="file" accept="application/pdf,image/png,image/jpeg,.pdf,.png,.jpg,.jpeg" multiple required />
+      </label>
+
+      <section class="capture">
+        <div class="capture-title"><span id="face-step" class="step">3</span><span><strong>Current face</strong><small>Look straight ahead in even light</small></span></div>
+        <div class="camera">
+          <video id="camera-video" class="hidden" playsinline muted></video>
+          <img id="live-preview" class="hidden" alt="Current face preview" />
+          <div id="camera-empty" class="empty"><span>◎</span><small>No photo yet</small></div>
+        </div>
+        <div class="actions">
+          <button id="start-camera" class="secondary" type="button">Use camera</button>
+          <button id="capture-button" class="hidden" type="button">Take photo &amp; verify</button>
+          <label class="secondary choose-live" for="live-file">Choose photo</label>
+          <input id="live-file" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" capture="user" />
+        </div>
+      </section>
+
+      <button id="compare-button" class="primary" type="submit">Verify identity</button>
+      <p class="note">Images are processed for this request. This is not a certified liveness test.</p>
+    </form>
+
+    <section id="working" class="message hidden" aria-live="polite"><span class="spinner"></span><div><strong>Verification in progress</strong><p>The first model load can take longer.</p></div></section>
+    <section id="error" class="message error hidden" role="alert"></section>
+
+    <section id="result" class="result hidden" aria-live="polite">
+      <div id="result-banner" class="result-banner">
+        <div><small>Result</small><h2 id="result-title"></h2><p id="result-message"></p></div>
+        <div class="score"><span>Similarity</span><strong id="similarity">—</strong><small id="threshold"></small></div>
+      </div>
+
+      <section id="document-result" class="document-result hidden">
+        <div class="check-heading"><h3>Document check</h3><strong id="document-status"></strong></div>
+        <p id="document-summary"></p>
+        <div class="details-grid">
+          <div><span>Previous ID</span><b id="historical-doc-check"></b></div>
+          <div><span>Current ID</span><b id="current-doc-check"></b></div>
+          <div><span>Current ID validity</span><b id="current-expiry"></b></div>
+          <div><span>Face check</span><b id="face-status"></b></div>
+        </div>
+        <div class="next-action"><strong id="next-action-title"></strong><p id="next-action-copy"></p></div>
+        <details>
+          <summary>View compared fields</summary>
+          <button id="pii-toggle" class="secondary" type="button">Reveal document values</button>
+          <div class="table-wrap"><table><thead><tr><th>Field</th><th>Previous</th><th>Current</th><th>Result</th></tr></thead><tbody id="comparison-body"></tbody></table></div>
+          <h4>Why this result</h4><div id="reason-list"></div>
+        </details>
+      </section>
+
+      <div class="visual-title"><h3>ID preprocessing pipeline</h3><p>Every phase below is produced by the backend, in the order it was applied.</p></div>
+      <div id="id-pipeline" class="pipeline"></div>
+      <div class="live-output">
+        <figure><div class="image-box face-box"><img id="aligned-live-face" alt="Aligned current face" /></div><figcaption><b>Live face used for comparison</b><span id="live-operations">Same alignment and normalization path</span></figcaption></figure>
+      </div>
+
+      <details>
+        <summary>Technical details</summary>
+        <div class="details-grid"><div><span>Status</span><b id="technical-status"></b></div><div><span>Detector</span><b id="detector"></b></div><div><span>Recognizer</span><b id="recognizer"></b></div><div><span>Processing time</span><b id="processing-time"></b></div></div>
+        <div id="document-diagnostics" class="details-grid hidden">
+          <div><span>OCR extraction confidence</span><b id="ocr-confidence"></b></div>
+          <div><span>Previous MRZ</span><b id="historical-mrz"></b></div>
+          <div><span>Current MRZ</span><b id="current-mrz"></b></div>
+          <div><span>Document processing</span><b id="document-time"></b></div>
+          <div><span>Face processing</span><b id="face-time"></b></div>
+        </div>
+      </details>
+      <button id="again-button" class="secondary again" type="button">Start again</button>
+    </section>
+  </main>
+  <canvas id="capture-canvas" class="hidden"></canvas>
+  <script src="/static/ocr-results.js?build=identity-ocr-v1"></script>
+  <script src="/static/app.js?build=face-only-v1"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+# Local configuration and credentials
+.env
+.env.*
+*.pem
+*.key
+credentials*.json
+secrets.*
+# Models, private inputs, generated outputs
+models/
+data/
+outputs/
+reports/
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.h5
+*.pkl
+*.joblib
+*.mp4
+*.mov
+*.avi
+*.pcap
+*.pcapng
+*.log
+# Runtime and editor files
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+.DS_Store
+.idea/
+.vscode/

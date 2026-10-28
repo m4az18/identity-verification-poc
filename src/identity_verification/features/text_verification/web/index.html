@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <title>Document Verification — Identity Verification Lab</title>
+  <link rel="stylesheet" href="/text/static/styles.css?build=document-v8" />
+</head>
+<body>
+  <header class="topbar">
+    <a href="/" class="brand">sa<span>al</span><b>.</b></a>
+
+    <div class="title">
+      <strong>Document Verification</strong>
+      <small>Previous ID ↔ current ID</small>
+    </div>
+
+    <nav aria-label="Primary navigation">
+      <a href="/">Unified verification</a>
+      <a class="active" aria-current="page" href="/text">Document check</a>
+      <a href="/face">Face check</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="intro">
+      <p class="eyebrow">DOCUMENT CHECK</p>
+      <h1>Compare a previous Emirates ID with a current one.</h1>
+      <p>
+        Upload both IDs to check whether the identity information is
+        consistent and whether the current ID is valid.
+      </p>
+    </section>
+
+    <form id="verify-form" class="card">
+
+      <div class="backend-selector">
+        <label for="extraction-backend">
+          <strong>Extraction model</strong>
+        </label>
+
+        <select id="extraction-backend" aria-label="Extraction model">
+          <option value="easyocr" selected>EasyOCR (English + Arabic)</option>
+        </select>
+      </div>
+
+      <label class="upload-box" for="historical-document">
+        <span class="number">01</span>
+        <strong>Previous Emirates ID</strong>
+        <small>One PDF or the front and back images.</small>
+        <span class="choose">Choose previous ID</span>
+
+        <input
+          id="historical-document"
+          required
+          multiple
+          type="file"
+          name="historical_document"
+          accept="image/png,image/jpeg,application/pdf,.png,.jpg,.jpeg,.pdf"
+        />
+
+        <span id="historical-selection" class="file-name">
+          No file selected
+        </span>
+      </label>
+
+      <label class="upload-box" for="current-document">
+        <span class="number">02</span>
+        <strong>Current Emirates ID</strong>
+        <small>One PDF or the front and back images.</small>
+        <span class="choose">Choose current ID</span>
+
+        <input
+          id="current-document"
+          required
+          multiple
+          type="file"
+          name="current_document"
+          accept="image/png,image/jpeg,application/pdf,.png,.jpg,.jpeg,.pdf"
+        />
+
+        <span id="current-selection" class="file-name">
+          No file selected
+        </span>
+      </label>
+
+      <button id="verify-button" type="submit">
+        Compare IDs →
+      </button>
+    </form>
+
+    <p class="privacy-note">
+      <strong>Privacy:</strong>
+      documents are processed for this verification session and are not intentionally persisted by the POC.
+    </p>
+
+    <div
+      id="status-panel"
+      class="status hidden"
+      role="status"
+      aria-live="polite">
+    </div>
+
+    <section
+      id="result-panel"
+      class="results hidden"
+      aria-live="polite">
+
+      <article
+        id="verdict"
+        class="result-banner">
+
+        <p class="eyebrow">DOCUMENT RESULT</p>
+        <h2 id="verdict-word"></h2>
+        <p id="verdict-why"></p>
+      </article>
+
+      <div class="summary-grid">
+
+        <article class="summary-card">
+          <h3>Identity match</h3>
+
+          <div class="metric">
+            <span>Emirates ID number</span>
+            <b id="id-result">—</b>
+          </div>
+
+          <div class="metric">
+            <span>Date of birth</span>
+            <b id="dob-result">—</b>
+          </div>
+
+          <div class="metric">
+            <span>English name</span>
+            <b id="english-name-result">—</b>
+          </div>
+
+          <div class="metric">
+            <span>Arabic name</span>
+            <b id="arabic-name-result">—</b>
+          </div>
+
+          <div class="metric">
+            <span>Nationality</span>
+            <b id="nationality-result">—</b>
+          </div>
+
+          <div class="metric">
+            <span>Sex</span>
+            <b id="sex-result">—</b>
+          </div>
+        </article>
+
+        <article class="summary-card">
+          <h3>Document checks</h3>
+
+          <div class="metric">
+            <span>Previous ID MRZ</span>
+            <b id="old-mrz">—</b>
+          </div>
+
+          <div class="metric">
+            <span>Current ID MRZ</span>
+            <b id="current-mrz">—</b>
+          </div>
+
+          <div class="metric">
+            <span>Current ID expiry</span>
+            <b id="expiry-result">—</b>
+          </div>
+        </article>
+
+        <article class="summary-card">
+          <h3>Processing</h3>
+
+          <div class="metric">
+            <span>Extraction model</span>
+            <b id="backend-result">—</b>
+          </div>
+
+          <div class="metric">
+            <span>OCR extraction confidence</span>
+            <b id="ocr-confidence">—</b>
+          </div>
+
+          <div class="metric">
+            <span>Document pipeline</span>
+            <b id="runtime-summary">—</b>
+          </div>
+
+          <p class="micro">
+            OCR confidence is shown only when the selected backend exposes a comparable
+            field-level recognition score; it is not identity confidence.
+          </p>
+        </article>
+
+      </div>
+
+      <details class="card details">
+        <summary>View compared fields</summary>
+
+        <div class="details-body">
+
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">FIELD RESULTS</p>
+              <h3>Previous ↔ current checks</h3>
+            </div>
+
+            <button
+              id="pii-toggle"
+              class="secondary"
+              type="button">
+              Reveal document values
+            </button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Previous</th>
+                  <th>OCR</th>
+                  <th>Current</th>
+                  <th>OCR</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+
+              <tbody id="comparison-body"></tbody>
+            </table>
+          </div>
+
+        </div>
+      </details>
+
+      <details class="card details technical-details">
+        <summary>Technical details</summary>
+
+        <div class="details-body">
+
+          <p class="technical-copy">
+            Per-stage timing, result notes and the structured API response remain
+            available here without exposing the full engineering diagnostics in the
+            normal user flow.
+          </p>
+
+          <div class="dev-grid">
+
+            <article>
+              <p class="eyebrow">PROCESSING TIME</p>
+              <div id="runtime-details"></div>
+            </article>
+
+            <article>
+              <p class="eyebrow">RESULT NOTES</p>
+              <div id="reason-list"></div>
+            </article>
+
+          </div>
+
+          <details class="nested">
+            <summary>OCR evidence — detected text and boxes</summary>
+
+            <p class="technical-copy">
+              Hover a box to see the raw OCR text and confidence before field mapping,
+              normalization and MRZ backfill.
+            </p>
+
+            <div id="ocr-evidence"></div>
+          </details>
+
+          <details class="nested">
+            <summary>Raw API response (sensitive)</summary>
+            <pre id="result-json"></pre>
+          </details>
+
+        </div>
+      </details>
+
+    </section>
+  </main>
+
+  <script src="/text/static/app.js?build=document-v8"></script>
+</body>
+</html>
