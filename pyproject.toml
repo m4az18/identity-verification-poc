@@ -5,7 +5,7 @@ description = "Document consistency and face-verification research prototype"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 dependencies = [
-  "fastapi>=0.141,<1", "numpy>=1.26,<3", "pillow>=11,<13",
+  "fastapi>=0.141,<1", "numpy>=1.26,<3", "pillow>=11,<14",
   "pydantic-settings>=2.15,<3", "pymupdf>=1.26,<2",
   "python-multipart>=0.0.32", "rapidfuzz>=3.13,<4", "uvicorn>=0.52,<1",
 ]
