@@ -1,7 +1,6 @@
 # Source and contribution notice
 
-This publication is adapted from a collaborative proof-of-concept supplied
-by the portfolio owner. It includes a collaborator's face-verification
+This repository is adapted from a collaborative proof of concept. It includes a collaborator's face-verification
 implementation under `features/face_verification/original`, with document
 processing, orchestration and interface components around it. It is not a
 claim of sole authorship of every component.
